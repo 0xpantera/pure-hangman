@@ -17,11 +17,6 @@ allWords = do
   return (lines dict)
 
 
-main :: IO ()
-main = do
-  putStrLn "hello"
-
-
 minWordLength :: Int
 minWordLength = 5
 
@@ -124,4 +119,20 @@ gameWin (Puzzle _ filledInSoFar _) =
   else return ()
 
 
-  
+runGame :: Puzzle -> IO ()
+runGame puzzle = forever $ do
+  gameOver puzzle
+  gameWin puzzle
+  putStrLn $ "Current puzzle is: " ++ show puzzle
+  putStr "Guess a letter: "
+  guess <- getLine
+  case guess of
+    [c] -> handleGuess c puzzle >>= runGame
+    _   -> putStrLn "Your guess must be a single character"
+
+
+main :: IO ()
+main = do
+  word <- randomWord'
+  let puzzle = freshPuzzle (fmap toLower word)
+  runGame puzzle
